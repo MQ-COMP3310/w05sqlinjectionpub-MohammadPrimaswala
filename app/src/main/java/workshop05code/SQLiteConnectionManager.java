@@ -150,24 +150,27 @@ public class SQLiteConnectionManager {
      * @return true if guess exists in the database, false otherwise
      */
     public boolean isValidWord(String guess) {
-        String sql = "SELECT count(id) as total FROM validWords WHERE word like'" + guess + "';";
-
+        String sql = "SELECT count(id) as total FROM validWords WHERE word LIKE ?";
+    
         try (Connection conn = DriverManager.getConnection(databaseURL);
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            ResultSet resultRows = stmt.executeQuery();
-            if (resultRows.next()) {
-                int result = resultRows.getInt("total");
-                return (result >= 1);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    
+            // Use parameterized query to prevent SQL injection
+            stmt.setString(1, "%" + guess + "%");
+    
+            // Execute the query and check if there are matching rows
+            try (ResultSet resultRows = stmt.executeQuery()) {
+                if (resultRows.next()) {
+                    int result = resultRows.getInt("total");
+                    return (result >= 1); // Return true if at least one match is found
+                }
+                return false; // Return false if no matches are found
             }
-
-            return false;
-
+    
         } catch (SQLException e) {
-            logger.log(Level.WARNING, " SQL error 6", e);
-            //System.out.println(e.getMessage());
-            return false;
+            logger.log(Level.WARNING, "SQL error in isValidWord", e);
+            return false; // Return false in case of an exception
         }
-
     }
+    
 }
