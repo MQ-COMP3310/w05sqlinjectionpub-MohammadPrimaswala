@@ -38,13 +38,13 @@ public class App {
 
         wordleDatabaseConnection.createNewDatabase("words.db");
         if (wordleDatabaseConnection.checkIfConnectionDefined()) {
-            System.out.println("Wordle created and connected.");
+            //System.out.println("Wordle created and connected.");
         } else {
             System.out.println("Not able to connect. Sorry!");
             return;
         }
         if (wordleDatabaseConnection.createWordleTables()) {
-            System.out.println("Wordle structures in place.");
+            //System.out.println("Wordle structures in place.");
         } else {
             System.out.println("Not able to launch. Sorry!");
             return;
@@ -56,12 +56,14 @@ public class App {
             String line;
             int i = 1;
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
+                logger.log(Level.INFO, line+" valid word in data.txt");
+                //System.out.println(line);
                 wordleDatabaseConnection.addValidWord(i, line);
                 i++;
             }
 
         } catch (IOException e) {
+            logger.log(Level.SEVERE,"invalid word in data.txt" );
             System.out.println("Not able to load . Sorry!");
             System.out.println(e.getMessage());
             return;
@@ -79,6 +81,7 @@ public class App {
                 if (wordleDatabaseConnection.isValidWord(guess)) { 
                     System.out.println("Success! It is in the the list.\n");
                 }else{
+                    logger.log(Level.INFO, guess+" wrong guess");
                     System.out.println("Sorry. This word is NOT in the the list.\n");
                 }
 
@@ -86,7 +89,8 @@ public class App {
                 guess = scanner.nextLine();
             }
         } catch (NoSuchElementException | IllegalStateException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Exception during user input", e);
+            // e.printStackTrace();
         }
 
     }
